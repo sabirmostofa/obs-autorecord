@@ -23,6 +23,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,14 +32,18 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import java.util.List;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import javax.json.JsonObject;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import org.json.*;
 
 /**
  *
@@ -58,6 +63,53 @@ public class DotaAutomation {
         //InputStream is = process.getInputStream();
         // InputStreamReader isr = new InputStreamReader(is);
         // BufferedReader br = n/demo_gototick 10minew BufferedReader(isr);
+        // testing json
+        BufferedReader abc = new BufferedReader(new FileReader("C:\\Users\\sab\\parse.txt"));
+
+        List<String> lines = new ArrayList<String>();
+
+        String lin;
+        while ((lin = abc.readLine()) != null) {
+            lines.add(lin);
+            //System.out.println(line);
+        }
+        abc.close();
+
+        
+
+        int deathcount = 0; 
+        
+        for (int i = 0; i < lines.size(); i++) {
+            String death = "DOTA_COMBATLOG_DEATH";
+            String hero = "npc_dota_hero";
+            String l = lines.get(i);
+            JSONObject obj = new JSONObject(l);
+
+            if (obj.has("time")) {
+                    
+                int time = obj.getInt("time");
+               
+                String type = obj.getString("type");
+                if (type.equals(death)) {
+                     
+                    String target = obj.getString("targetname");
+                    String attacker = obj.getString("attackername");
+
+                    if (target.contains(hero) && attacker.contains(hero)) {
+                        deathcount++;
+                        System.out.println(time);
+                        System.out.println(attacker);
+                        System.out.println(target);
+                        
+                    }
+                }
+
+            }
+        }
+        
+        System.out.println("Total death: " + deathcount);
+
+        System.exit(0);
         connectServer();
         String line;
 
@@ -75,7 +127,7 @@ public class DotaAutomation {
 //            System.out.println(line);
 //
 //        }
-        int[] recs = {10,20,30};
+        int[] recs = {10, 20, 30};
 
         // loop
         for (int i = 0; i < recs.length; i++) {
@@ -84,7 +136,7 @@ public class DotaAutomation {
             System.out.println(com);
             inputCommand(com);
         }
-        
+
         //close session
         session.close();
 
@@ -93,13 +145,11 @@ public class DotaAutomation {
     public static void inputCommand(String com) throws AWTException, InterruptedException, IOException {
         openConsole();
 
-        
         typeText(com);
         pressEnter();
 
         exitConsole();
         startRecording();
-        
 
         TimeUnit.SECONDS.sleep(10);
         stopRecording();
@@ -205,20 +255,16 @@ public class DotaAutomation {
             }
         }, URI.create("ws://127.0.0.1:4440"));
 
-       
+    }
+
+    public static void startRecording() throws IOException {
+        session.getBasicRemote().sendText("{\"request-type\": \"StartRecording\", \"message-id\": \"1\"}");
 
     }
-    
-    public static void startRecording() throws IOException{
-         session.getBasicRemote().sendText("{\"request-type\": \"StartRecording\", \"message-id\": \"1\"}");
-    
 
-}
-    
-        public static void stopRecording() throws IOException{
-         session.getBasicRemote().sendText("{\"request-type\": \"StopRecording\", \"message-id\": \"1\"}");
-    
+    public static void stopRecording() throws IOException {
+        session.getBasicRemote().sendText("{\"request-type\": \"StopRecording\", \"message-id\": \"1\"}");
 
-}
+    }
 
 }
