@@ -74,6 +74,7 @@ public class DotaAutomation {
      */
     public static Session session;
     public static File demFolder;
+    public static File replayFolder;
     public static Robot robot;
 
     public static void main(String[] args) throws IOException, AWTException, InterruptedException, DeploymentException {
@@ -84,20 +85,58 @@ public class DotaAutomation {
         // InputStreamReader isr = new InputStreamReader(is);
         // BufferedReader br = n/demo_gototick 10minew BufferedReader(isr);
         // testing json
-        demFolder = new File("D:\\toParse");
-        File[] listOfFiles = demFolder.listFiles();
-
+        connectServer();
         robot = new Robot();
+        demFolder = new File("D:\\toParse");
+
+        replayFolder = new File("D:\\SteamLibrary\\steamapps\\common\\dota 2 beta\\game\\dota\\toParse");
+        File[] listOfFiles = replayFolder.listFiles();
+
+
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                String fName = listOfFiles[i].getName();
+                int player = Integer.parseInt(fName.substring(0, 1));
+                String sampleDemo = replayFolder + "\\" + fName;
+                CDemoFileInfo info = Clarity.infoForFile(sampleDemo);
+                int demoLen = Math.round(info.getPlaybackTime());
+
+                if (i == 0) {
+                    switchFocus();
+                }
+
+                String demoPlay = "playdemo toParse\\" + fName;
+                System.out.println(demoPlay);
+                inputCommand(demoPlay);
+
+                //time to load demo
+                TimeUnit.SECONDS.sleep(30);
+
+                //setuphud
+                setReplayHud(getOctVal(player));
+
+                startRecording();
+                System.out.println("sleeping for: " + demoLen);
+
+                int recTime = demoLen - 200;
+                TimeUnit.SECONDS.sleep(10);
+
+                stopRecording();
+            }
+        }
+
+        System.exit(0);
 
         switchFocus();
         TimeUnit.SECONDS.sleep(1);
-        setReplayHud();
-        
+        setReplayHud(1);
+
         String demoPlay = "playdemo replays\\";
 
         String sampleDemo = "C:\\Users\\sab\\4149205403.dem";
         CDemoFileInfo info = Clarity.infoForFile(sampleDemo);
-        
+
         System.out.println(info.getPlaybackTime());
         //System.out.println(info);
 
@@ -172,6 +211,53 @@ public class DotaAutomation {
 
     }
 
+    public static int getOctVal(int a) {
+
+        int b = 0x31;
+
+        switch (a) {
+
+            case 1:
+                b = 0x31;
+                break;
+
+            case 2:
+                b = 0x32;
+                break;
+
+            case 3:
+                b = 0x33;
+                break;
+
+            case 4:
+                b = 0x34;
+                break;
+            case 5:
+                b = 0x35;
+                break;
+
+            case 6:
+                b = 0x36;
+                break;
+            case 7:
+                b = 0x37;
+                break;
+            case 8:
+                b = 0x38;
+                break;
+
+            case 9:
+                b = 0x39;
+                break;
+            case 10:
+                b = 0x30;
+                break;
+
+        }
+
+        return b;
+    }
+
     public static void saveKills(String file) throws FileNotFoundException, IOException {
 
         System.out.println(file);
@@ -243,103 +329,87 @@ public class DotaAutomation {
 
     }
 
-    public static void setReplayHud() throws InterruptedException, AWTException {
+    public static void setReplayHud(int player) throws InterruptedException, AWTException, IOException {
 
         String com1 = "dota_hide_cursor 1";
+        inputCommand("dota_spectator_mode 3");
+        inputCommand(com1);
 
         // set networth ascending press y and then press s two times
-        
-        
         pressSingle(KeyEvent.VK_Y);
-        pressSingle(KeyEvent.VK_S);
-        pressSingle(KeyEvent.VK_S);
-        System.exit(0);
-        
-        
-        
-        robot.keyPress(KeyEvent.VK_S);
-        robot.keyRelease(KeyEvent.VK_S);
-        
-        
-        
-        TimeUnit.SECONDS.sleep(1);
-        click(280, 100);
-        TimeUnit.SECONDS.sleep(1);
-        click(280, 100);
-        //robot.mouseMove(280, 100);
-        //robot.mousePress(0);
 
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(570, 20);
-        click(570, 20);
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(630, 20);
-         click(630, 20);
-        
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(710, 20);
-         click(710, 20);
-         
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(770, 20);
-        
-         click(770, 20);
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(830, 20);
-        
-         click(830, 20);
-        
-        
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(1080, 20);
-        
-         click(1090, 20);
-        
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(1140, 20);
-        
-         click(1150, 20);
-        
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(1210, 20);
-         click(1210, 20);
-        
-        
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(1270, 20);
-         click(1270, 20);
-        
-        
-        TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(1330, 20);
-        
-         click(1330, 20);
-        
-         TimeUnit.SECONDS.sleep(2);
-        robot.mouseMove(1840, 20);
-        
+//        robot.keyPress(KeyEvent.VK_S);
+//        robot.keyRelease(KeyEvent.VK_S);
+//
+//        TimeUnit.SECONDS.sleep(1);
+//        click(280, 100);
+//        TimeUnit.SECONDS.sleep(1);
+//        click(280, 100);
+//        //robot.mouseMove(280, 100);
+//        //robot.mousePress(0);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(570, 20);
+//        click(570, 20);
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(630, 20);
+//        click(630, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(710, 20);
+//        click(710, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(770, 20);
+//
+//        click(770, 20);
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(830, 20);
+//
+//        click(830, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(1080, 20);
+//
+//        click(1090, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(1140, 20);
+//
+//        click(1150, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(1210, 20);
+//        click(1210, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(1270, 20);
+//        click(1270, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(1330, 20);
+//
+//        click(1330, 20);
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        robot.mouseMove(1840, 20);
         // hide perspective hud 
         click(1840, 20);
-         
-         // hide replay bar
-         robot.mouseMove(525, 1055);
-         
-         
-         //enable player perspective
-         
-         typeText("dota_spectator_mode 3");
-         
-         
-         
+
+        // hide replay bar
+        click(525, 1055);
+
+        //select player
+        pressSingle(player);
 
         //doubleclick on side bar
     }
-    
-    public static void pressSingle(int a){
-       
+
+    public static void pressSingle(int a) {
+
         robot.keyPress(a);
         robot.keyRelease(a);
-       
+
     }
 
     public static void inputCommand(String com) throws AWTException, InterruptedException, IOException {
@@ -347,67 +417,38 @@ public class DotaAutomation {
 
         typeText(com);
         pressEnter();
+        TimeUnit.SECONDS.sleep(1);
 
         exitConsole();
-        startRecording();
-
-        TimeUnit.SECONDS.sleep(10);
-        stopRecording();
 
     }
 
-    public static void startRecord() throws AWTException {
-
-        Robot robot = new Robot();
-        robot.keyPress(KeyEvent.VK_CONTROL);
-        robot.keyPress(KeyEvent.VK_R);
-
-        robot.keyRelease(KeyEvent.VK_R);
-        robot.keyRelease(KeyEvent.VK_CONTROL);
-
-    }
-
-    public static void stopRecord() throws AWTException {
-        Robot robot = new Robot();
-        robot.keyPress(KeyEvent.VK_CONTROL);
-        robot.keyPress(KeyEvent.VK_R);
-        robot.keyRelease(KeyEvent.VK_R);
-        robot.keyRelease(KeyEvent.VK_CONTROL);
-    }
-
-    public static void typeText(String com) throws AWTException {
+    public static void typeText(String com) throws AWTException, InterruptedException {
         StringSelection stringSelection = new StringSelection(com);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, stringSelection);
-
-        Robot robot = new Robot();
         robot.keyPress(KeyEvent.VK_CONTROL);
         robot.keyPress(KeyEvent.VK_V);
+        TimeUnit.SECONDS.sleep(1);
         robot.keyRelease(KeyEvent.VK_V);
         robot.keyRelease(KeyEvent.VK_CONTROL);
+        TimeUnit.SECONDS.sleep(1);
 
         //press enter
     }
 
     public static void pressEnter() throws AWTException {
 
-        Robot robot = new Robot();
         robot.keyPress(KeyEvent.VK_ENTER);
         robot.keyRelease(KeyEvent.VK_ENTER);
     }
 
-    public static void switchFocus() {
-        try {
-            Robot r = new Robot();
-            r.keyPress(KeyEvent.VK_ALT);
-            r.keyPress(KeyEvent.VK_TAB);
-            r.keyRelease(KeyEvent.VK_ALT);
-            r.keyRelease(KeyEvent.VK_TAB);
-
-        } catch (AWTException e) {
-            System.out.println("error on switch focus");
-            // handle
-        }
+    public static void switchFocus() throws InterruptedException {
+        robot.keyPress(KeyEvent.VK_ALT); // handle
+        robot.keyPress(KeyEvent.VK_TAB);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        robot.keyRelease(KeyEvent.VK_TAB);
+        TimeUnit.SECONDS.sleep(1);
     }
 
     public static void click(int x, int y) throws AWTException {
@@ -419,28 +460,16 @@ public class DotaAutomation {
 
     public static void openConsole() throws InterruptedException {
 
-        try {
-            Robot r = new Robot();
-            r.keyPress(KeyEvent.VK_SLASH);
-            r.keyRelease(KeyEvent.VK_SLASH);
-            TimeUnit.SECONDS.sleep(1);
-
-        } catch (AWTException e) {
-            System.out.println("error on console");
-            // handle
-        }
+        robot.keyPress(KeyEvent.VK_NUMPAD5); // handle
+        robot.keyRelease(KeyEvent.VK_NUMPAD5);
+        TimeUnit.SECONDS.sleep(1);
     }
 
-    public static void exitConsole() {
-        try {
-            Robot r = new Robot();
-            r.keyPress(KeyEvent.VK_ESCAPE);
-            r.keyRelease(KeyEvent.VK_ESCAPE);
+    public static void exitConsole() throws InterruptedException {
 
-        } catch (AWTException e) {
-            System.out.println("error on console");
-
-        }
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+        TimeUnit.SECONDS.sleep(1);
 
 // handle
     }
